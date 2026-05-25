@@ -19,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Shield
@@ -50,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.bromoindah.data.model.UserRole
 import com.example.bromoindah.ui.components.BottomNavBar
 import com.example.bromoindah.ui.viewmodel.AuthViewModel
 
@@ -112,8 +112,9 @@ fun ProfileScreen(
                 uiState.profile?.let { profile ->
                     val nameInitials = if (profile.fullName.isNotBlank()) {
                         profile.fullName.split(" ")
+                            .filter { it.isNotBlank() }
                             .take(2)
-                            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                            .map { it.first().uppercaseChar() }
                             .joinToString("")
                     } else {
                         "U"
@@ -152,7 +153,8 @@ fun ProfileScreen(
                         textAlign = TextAlign.Center
                     )
 
-                    val roleText = if (profile.role == "admin") "Administrator" else "Pengguna"
+                    // FIXED: Menggunakan profile.role dan Enum UserRole
+                    val roleText = if (profile.role == UserRole.ADMIN) "Administrator" else "Pengguna"
                     Text(
                         text = roleText,
                         style = MaterialTheme.typography.bodyMedium.copy(
@@ -164,7 +166,12 @@ fun ProfileScreen(
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 } ?: run {
-                    CircularProgressIndicator(color = ThemeMediumGreen)
+                    Box(
+                        modifier = Modifier.height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = ThemeMediumGreen)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -196,11 +203,11 @@ fun ProfileScreen(
                             value = profile?.fullName ?: "-"
                         )
 
-                        // Role Row
+                        // FIXED: Perbandingan role menggunakan Enum
                         ProfileDetailRow(
                             icon = Icons.Filled.Shield,
                             label = "Tingkat Akun",
-                            value = if (profile?.role == "admin") "Admin" else "User"
+                            value = if (profile?.role == UserRole.ADMIN) "Admin" else "User"
                         )
 
                         // Phone Row

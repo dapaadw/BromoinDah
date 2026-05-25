@@ -371,7 +371,7 @@ fun RegisterScreen(
                         ) {
                             Text(
                                 text = "Kata sandi tidak cocok",
-                                color = ErrorRed,
+                                color = Color.Black,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -389,7 +389,7 @@ fun RegisterScreen(
                         ) {
                             Text(
                                 text = uiState.error.orEmpty(),
-                                color = ErrorRed,
+                                color = Color.Black,
                                 style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
@@ -477,6 +477,8 @@ fun RegisterScreen(
  */
 @Composable
 private fun outlinedFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = Color.Black,
+    unfocusedTextColor = Color.Black,
     focusedBorderColor = GradientMediumGreen,
     unfocusedBorderColor = AccentGreen.copy(alpha = 0.5f),
     cursorColor = GradientMediumGreen,

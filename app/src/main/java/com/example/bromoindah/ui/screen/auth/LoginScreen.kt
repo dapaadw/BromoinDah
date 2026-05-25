@@ -49,7 +49,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
@@ -208,6 +207,8 @@ fun LoginScreen(
                             ),
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
                                 focusedBorderColor = GradientMediumGreen,
                                 unfocusedBorderColor = AccentGreen.copy(alpha = 0.5f),
                                 cursorColor = GradientMediumGreen,
@@ -268,6 +269,8 @@ fun LoginScreen(
                             ),
                             shape = RoundedCornerShape(16.dp),
                             colors = OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
                                 focusedBorderColor = GradientMediumGreen,
                                 unfocusedBorderColor = AccentGreen.copy(alpha = 0.5f),
                                 cursorColor = GradientMediumGreen,
@@ -288,7 +291,7 @@ fun LoginScreen(
                         ) {
                             Text(
                                 text = uiState.error.orEmpty(),
-                                color = ErrorRed,
+                                color = Color.Black,
                                 style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier

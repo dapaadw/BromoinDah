@@ -7,8 +7,8 @@ import io.github.jan.supabase.storage.Storage
 
 object SupabaseClient {
     val client = createSupabaseClient(
-        supabaseUrl = "https://YOUR_PROJECT_ID.supabase.co", // TODO: Ganti dengan URL Supabase Anda
-        supabaseKey = "YOUR_ANON_KEY" // TODO: Ganti dengan Anon Key Supabase Anda
+        supabaseUrl = "https://sbwrcqjnfzxfrbeowved.supabase.co", // TODO: Ganti dengan URL Supabase Anda
+        supabaseKey = "sb_publishable_mQ9M3HdGZuRWNa38k1kmPQ_aVbdpFP1" // TODO: Ganti dengan Anon Key Supabase Anda
     ) {
         install(Auth)
         install(Postgrest)

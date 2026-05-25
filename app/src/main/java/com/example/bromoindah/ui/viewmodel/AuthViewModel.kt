@@ -3,6 +3,7 @@ package com.example.bromoindah.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bromoindah.data.model.Profile
+import com.example.bromoindah.data.model.UserRole
 import com.example.bromoindah.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,7 +71,7 @@ class AuthViewModel : ViewModel() {
                 _uiState.value = AuthUiState(
                     isLoggedIn = true,
                     profile = profile,
-                    isAdmin = profile.role == "admin",
+                    isAdmin = profile.role == UserRole.ADMIN,
                     isLoading = false
                 )
             },

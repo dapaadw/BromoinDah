@@ -2,10 +2,10 @@ package com.example.bromoindah.data.repository
 
 import com.example.bromoindah.data.SupabaseClient
 import com.example.bromoindah.data.model.Profile
+import com.example.bromoindah.data.model.UserRole
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.postgrest.query.Columns
 
 object AuthRepository {
     private val client = SupabaseClient.client
@@ -13,7 +13,7 @@ object AuthRepository {
     suspend fun signUp(email: String, password: String, fullName: String): Result<Unit> {
         return try {
             client.auth.signUpWith(Email) {
-                this.email = email
+                this.email = email.trim()
                 this.password = password
             }
             // Insert profile row after successful sign up
@@ -21,7 +21,7 @@ object AuthRepository {
             val profile = Profile(
                 id = userId,
                 fullName = fullName,
-                role = "user"
+                role = UserRole.USER
             )
             client.postgrest.from("profiles").insert(profile)
             Result.success(Unit)
@@ -33,7 +33,7 @@ object AuthRepository {
     suspend fun signIn(email: String, password: String): Result<Unit> {
         return try {
             client.auth.signInWith(Email) {
-                this.email = email
+                this.email = email.trim()
                 this.password = password
             }
             Result.success(Unit)

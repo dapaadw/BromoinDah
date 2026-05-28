@@ -11,6 +11,9 @@ import com.example.bromoindah.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -62,7 +65,7 @@ class BookingViewModel @Inject constructor(
             val pesanan = Pesanan(
                 user_id = currentUser.id,
                 wisata_id = wisata.id ?: "",
-                tanggal_pesan = _uiState.value.selectedDate,
+                tanggal_pesan = LocalDate.parse(_uiState.value.selectedDate).atStartOfDayIn(TimeZone.UTC),
                 jumlah_tiket = _uiState.value.jumlahTiket,
                 total_harga = _uiState.value.totalHarga
             )

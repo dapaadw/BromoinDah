@@ -1,6 +1,7 @@
 package com.example.bromoindah.domain.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.datetime.Instant
 
 @Serializable
 data class Wisata(
@@ -13,5 +14,5 @@ data class Wisata(
     val fasilitas: String? = null,
     val aturan_kunjungan: String? = null,
     val foto_wisata_url: String? = null,
-    val created_at: String? = null
+    val created_at: Instant? = null
 )

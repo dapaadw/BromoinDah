@@ -1,6 +1,7 @@
 package com.example.bromoindah.domain.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.datetime.Instant
 
 @Serializable
 data class User(
@@ -9,5 +10,5 @@ data class User(
     val email: String,
     val foto_profil_url: String? = null,
     val role: String = "user",
-    val created_at: String? = null
+    val created_at: Instant? = null
 )

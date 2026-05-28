@@ -30,7 +30,9 @@ class ReviewRepositoryImpl @Inject constructor(
             if (byteArray != null) {
                 val bucket = storage.from("review-photos")
                 val fileName = "review_${review.pesanan_id}.jpg"
-                bucket.upload(fileName, byteArray, upsert = true)
+                bucket.upload(fileName, byteArray) {
+                    upsert = true
+                }
                 val publicUrl = bucket.publicUrl(fileName)
                 finalReview = review.copy(foto_review_url = publicUrl)
             }

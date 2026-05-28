@@ -4,12 +4,9 @@ import com.example.bromoindah.domain.model.Pesanan
 import com.example.bromoindah.domain.repository.BookingRepository
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
-import io.github.jan_tennert.supabase.postgrest.Postgrest
-import io.github.jan_tennert.supabase.storage.Storage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 class BookingRepositoryImpl @Inject constructor(
     private val postgrest: Postgrest,
@@ -40,7 +37,9 @@ class BookingRepositoryImpl @Inject constructor(
         return try {
             val bucket = storage.from("payment-proofs")
             val fileName = "proof_$bookingId.jpg"
-            bucket.upload(fileName, byteArray, upsert = true)
+            bucket.upload(fileName, byteArray) {
+                upsert = true
+            }
             val publicUrl = bucket.publicUrl(fileName)
             
             postgrest["pesanan"].update({

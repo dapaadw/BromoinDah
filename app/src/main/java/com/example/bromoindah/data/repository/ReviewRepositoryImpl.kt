@@ -15,13 +15,23 @@ class ReviewRepositoryImpl @Inject constructor(
 
     override fun getReviewsByWisataId(wisataId: String): Flow<List<Review>> = flow {
         val result = postgrest["review"]
-            .select {
+            .select(columns = io.github.jan.supabase.postgrest.query.Columns.raw("*, users(nama_lengkap)")) {
                 filter {
                     eq("wisata_id", wisataId)
                 }
             }
-            .decodeList<Review>()
-        emit(result)
+        
+        val reviews = result.decodeList<Review>().mapIndexed { index, review ->
+            val userName = result.decodeList<kotlinx.serialization.json.JsonObject>()[index]["users"]?.let { 
+                if (it is kotlinx.serialization.json.JsonObject) {
+                    it["nama_lengkap"]?.let { name ->
+                        if (name is kotlinx.serialization.json.JsonPrimitive) name.content else null
+                    }
+                } else null
+            }
+            review.copy(user_name = userName)
+        }
+        emit(reviews)
     }
 
     override suspend fun createReview(review: Review, byteArray: ByteArray?): Result<Unit> {
@@ -38,6 +48,16 @@ class ReviewRepositoryImpl @Inject constructor(
             }
             
             postgrest["review"].insert(finalReview)
+            
+            // Update the booking to mark it as reviewed
+            postgrest["pesanan"].update({
+                set("is_reviewed", true)
+            }) {
+                filter {
+                    eq("id", review.pesanan_id)
+                }
+            }
+
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

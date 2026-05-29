@@ -32,7 +32,11 @@ class ReviewViewModel @Inject constructor(
         _uiState.update { it.copy(ulasan = ulasan) }
     }
 
-    fun submitReview(photoBytes: ByteArray? = null) {
+    fun onPhotoSelected(bytes: ByteArray?) {
+        _uiState.update { it.copy(photoBytes = bytes) }
+    }
+
+    fun submitReview() {
         val pId = pesananId ?: return
         val wId = wisataId ?: return
         
@@ -52,7 +56,7 @@ class ReviewViewModel @Inject constructor(
                 ulasan = _uiState.value.ulasan
             )
 
-            createReviewUseCase(review, photoBytes).onSuccess {
+            createReviewUseCase(review, _uiState.value.photoBytes).onSuccess {
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             }.onFailure { e ->
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
@@ -64,6 +68,7 @@ class ReviewViewModel @Inject constructor(
 data class ReviewUiState(
     val rating: Int = 5,
     val ulasan: String = "",
+    val photoBytes: ByteArray? = null,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null

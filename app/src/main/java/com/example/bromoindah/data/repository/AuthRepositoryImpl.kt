@@ -5,7 +5,10 @@ import com.example.bromoindah.domain.repository.AuthRepository
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
+import io.github.jan.supabase.postgrest.Postgrest
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -13,7 +16,8 @@ import kotlinx.serialization.json.put
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val auth: Auth
+    private val auth: Auth,
+    private val postgrest: Postgrest
 ) : AuthRepository {
 
     override suspend fun signUp(email: String, password: String, namaLengkap: String): Result<Unit> {
@@ -53,21 +57,34 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override fun getCurrentUser(): Flow<User?> {
-        // Gunakan sessionStatus alih-alih sessionFlow untuk reaktivitas status login
-        return auth.sessionStatus.map { status ->
-            when (status) {
-                is SessionStatus.Authenticated -> {
-                    val supabaseUser = status.session.user
-                    User(
-                        id = supabaseUser?.id ?: "",
-                        email = supabaseUser?.email ?: "",
-                        // Gunakan content untuk mengambil nilai string murni tanpa tanda kutip JSON
-                        nama_lengkap = supabaseUser?.userMetadata?.get("nama_lengkap")?.jsonPrimitive?.content ?: "",
-                        role = supabaseUser?.userMetadata?.get("role")?.jsonPrimitive?.content ?: "user"
-                    )
+        return flow {
+            emitAll(auth.sessionStatus.map { status ->
+                when (status) {
+                    is SessionStatus.Authenticated -> {
+                        val supabaseUser = status.session.user
+                        try {
+                            // Fetch real-time role and data from public.users table
+                            val userProfile = postgrest.from("users")
+                                .select {
+                                    filter {
+                                        eq("id", supabaseUser?.id ?: "")
+                                    }
+                                }
+                                .decodeSingle<User>()
+                            userProfile
+                        } catch (e: Exception) {
+                            // Fallback to metadata if table fetch fails
+                            User(
+                                id = supabaseUser?.id ?: "",
+                                email = supabaseUser?.email ?: "",
+                                nama_lengkap = supabaseUser?.userMetadata?.get("nama_lengkap")?.jsonPrimitive?.content ?: "",
+                                role = supabaseUser?.userMetadata?.get("role")?.jsonPrimitive?.content ?: "user"
+                            )
+                        }
+                    }
+                    else -> null
                 }
-                else -> null
-            }
+            })
         }
     }
 

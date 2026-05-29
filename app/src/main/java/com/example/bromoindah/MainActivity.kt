@@ -12,6 +12,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.bromoindah.ui.navigation.NavGraph
 import com.example.bromoindah.ui.theme.BromoInDahTheme
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+
+
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

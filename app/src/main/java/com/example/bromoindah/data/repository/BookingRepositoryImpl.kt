@@ -24,25 +24,40 @@ class BookingRepositoryImpl @Inject constructor(
 
     override fun getBookingsByUserId(userId: String): Flow<List<Pesanan>> = flow {
         val result = postgrest["pesanan"]
-            .select {
+            .select(columns = io.github.jan.supabase.postgrest.query.Columns.raw("*, wisata(nama_wisata)")) {
                 filter {
                     eq("user_id", userId)
                 }
             }
-            .decodeList<Pesanan>()
-        emit(result)
+        
+        val bookings = result.decodeList<Pesanan>().mapIndexed { index, pesanan ->
+            val wisataName = result.decodeList<kotlinx.serialization.json.JsonObject>()[index]["wisata"]?.let {
+                if (it is kotlinx.serialization.json.JsonObject) {
+                    it["nama_wisata"]?.let { name ->
+                        if (name is kotlinx.serialization.json.JsonPrimitive) name.content else null
+                    }
+                } else null
+            }
+            pesanan.copy(wisata_name = wisataName)
+        }
+        emit(bookings)
     }
 
     override suspend fun uploadPaymentProof(bookingId: String, byteArray: ByteArray): Result<String> {
         return try {
             val bucket = storage.from("payment-proofs")
             val fileName = "proof_$bookingId.jpg"
+            
+            // 1. Upload the file to Storage
             bucket.upload(fileName, byteArray) {
                 upsert = true
             }
+            
+            // 2. Get the public URL
             val publicUrl = bucket.publicUrl(fileName)
             
-            postgrest["pesanan"].update({
+            // 3. Update the database record
+            postgrest.from("pesanan").update({
                 set("bukti_bayar_url", publicUrl)
                 set("status_pesanan", "Menunggu Konfirmasi")
             }) {
@@ -50,8 +65,10 @@ class BookingRepositoryImpl @Inject constructor(
                     eq("id", bookingId)
                 }
             }
+            
             Result.success(publicUrl)
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.failure(e)
         }
     }
@@ -76,6 +93,17 @@ class BookingRepositoryImpl @Inject constructor(
             .select {
                 filter {
                     eq("status_pesanan", "Menunggu Konfirmasi")
+                }
+            }
+            .decodeList<Pesanan>()
+        emit(result)
+    }
+
+    override fun getAllConfirmedBookings(): Flow<List<Pesanan>> = flow {
+        val result = postgrest["pesanan"]
+            .select {
+                filter {
+                    eq("status_pesanan", "Dikonfirmasi")
                 }
             }
             .decodeList<Pesanan>()

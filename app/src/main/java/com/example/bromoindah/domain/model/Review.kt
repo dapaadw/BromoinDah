@@ -12,5 +12,6 @@ data class Review(
     val rating: Int,
     val ulasan: String? = null,
     val foto_review_url: String? = null,
+    val user_name: String? = null,
     val created_at: Instant? = null
 )

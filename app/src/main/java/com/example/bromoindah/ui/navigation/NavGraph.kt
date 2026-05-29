@@ -17,6 +17,7 @@ import com.example.bromoindah.ui.screen.review.ReviewScreen
 import com.example.bromoindah.ui.screen.admin.dashboard.AdminDashboardScreen
 import com.example.bromoindah.ui.screen.admin.manage_wisata.ManageWisataScreen
 import com.example.bromoindah.ui.screen.admin.confirm_booking.ConfirmBookingScreen
+import com.example.bromoindah.ui.screen.admin.manage_wisata.AddEditWisataScreen
 
 @Composable
 fun NavGraph(
@@ -58,6 +59,9 @@ fun NavGraph(
                 },
                 onNavigateToHistory = {
                     navController.navigate(Screen.History.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
                 }
             )
         }
@@ -87,7 +91,24 @@ fun NavGraph(
         }
         composable(Screen.History.route) {
             HistoryScreen(
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onNavigateToReview = { pesananId, wisataId ->
+                    navController.navigate(Screen.Review.createRoute(pesananId, wisataId))
+                }
+            )
+        }
+        composable(
+            route = Screen.Review.route,
+            arguments = listOf(
+                navArgument("pesananId") { type = NavType.StringType },
+                navArgument("wisataId") { type = NavType.StringType }
+            )
+        ) {
+            ReviewScreen(
+                onBackClick = { navController.popBackStack() },
+                onReviewSuccess = {
+                    navController.popBackStack()
+                }
             )
         }
         composable(Screen.Profile.route) {
@@ -97,6 +118,9 @@ fun NavGraph(
                     navController.navigate(Screen.Login.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onNavigateToAdmin = {
+                    navController.navigate(Screen.AdminDashboard.route)
                 }
             )
         }
@@ -119,11 +143,26 @@ fun NavGraph(
             ManageWisataScreen(
                 onBackClick = { navController.popBackStack() },
                 onNavigateToAddWisata = {
-                    // To be implemented: Add Wisata Screen
+                    navController.navigate(Screen.AddWisata.route)
                 },
                 onNavigateToEditWisata = { wisataId ->
-                    // To be implemented: Edit Wisata Screen
+                    navController.navigate(Screen.EditWisata.createRoute(wisataId))
                 }
+            )
+        }
+        composable(Screen.AddWisata.route) {
+            AddEditWisataScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = Screen.EditWisata.route,
+            arguments = listOf(navArgument("wisataId") { type = NavType.StringType })
+        ) {
+            AddEditWisataScreen(
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
             )
         }
         composable(Screen.ConfirmBooking.route) {

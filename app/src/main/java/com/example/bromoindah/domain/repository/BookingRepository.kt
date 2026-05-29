@@ -9,4 +9,5 @@ interface BookingRepository {
     suspend fun uploadPaymentProof(bookingId: String, byteArray: ByteArray): Result<String>
     suspend fun updateBookingStatus(bookingId: String, status: String): Result<Unit>
     fun getAllPendingBookings(): Flow<List<Pesanan>>
+    fun getAllConfirmedBookings(): Flow<List<Pesanan>>
 }

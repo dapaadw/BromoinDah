@@ -13,5 +13,7 @@ data class Pesanan(
     val total_harga: Int,
     val bukti_bayar_url: String? = null,
     val status_pesanan: String = "Menunggu Pembayaran",
-    val created_at: Instant? = null
+    val is_reviewed: Boolean = false,
+    val created_at: Instant? = null,
+    val wisata_name: String? = null
 )

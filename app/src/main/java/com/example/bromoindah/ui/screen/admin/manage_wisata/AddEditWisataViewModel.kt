@@ -5,17 +5,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bromoindah.domain.model.Wisata
 import com.example.bromoindah.domain.usecase.admin.UpsertWisataUseCase
+import com.example.bromoindah.domain.usecase.admin.UploadWisataImageUseCase
 import com.example.bromoindah.domain.usecase.wisata.GetWisataByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditWisataViewModel @Inject constructor(
     private val upsertWisataUseCase: UpsertWisataUseCase,
+    private val uploadWisataImageUseCase: UploadWisataImageUseCase,
     private val getWisataByIdUseCase: GetWisataByIdUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -59,10 +62,29 @@ class AddEditWisataViewModel @Inject constructor(
     fun onJamOperasionalChanged(value: String) = _uiState.update { it.copy(jamOperasional = value) }
     fun onFasilitasChanged(value: String) = _uiState.update { it.copy(fasilitas = value) }
     fun onAturanChanged(value: String) = _uiState.update { it.copy(aturan = value) }
+    
+    fun onImageSelected(byteArray: ByteArray) {
+        _uiState.update { it.copy(selectedImageBytes = byteArray) }
+    }
 
     fun saveWisata() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
+            
+            var currentFotoUrl = _uiState.value.fotoUrl
+            
+            // 1. Upload image if a new one is selected
+            _uiState.value.selectedImageBytes?.let { bytes ->
+                val fileName = "wisata_${UUID.randomUUID()}.jpg"
+                uploadWisataImageUseCase(bytes, fileName).onSuccess { url ->
+                    currentFotoUrl = url
+                }.onFailure { e ->
+                    _uiState.update { it.copy(isLoading = false, error = "Gagal upload gambar: ${e.message}") }
+                    return@launch
+                }
+            }
+
+            // 2. Upsert the wisata data
             val wisata = Wisata(
                 id = _uiState.value.id,
                 nama_wisata = _uiState.value.nama,
@@ -72,7 +94,7 @@ class AddEditWisataViewModel @Inject constructor(
                 jam_operasional = _uiState.value.jamOperasional,
                 fasilitas = _uiState.value.fasilitas,
                 aturan_kunjungan = _uiState.value.aturan,
-                foto_wisata_url = _uiState.value.fotoUrl
+                foto_wisata_url = currentFotoUrl
             )
 
             upsertWisataUseCase(wisata).onSuccess {
@@ -94,6 +116,7 @@ data class AddEditWisataUiState(
     val fasilitas: String = "",
     val aturan: String = "",
     val fotoUrl: String = "",
+    val selectedImageBytes: ByteArray? = null,
     val isLoading: Boolean = false,
     val isSuccess: Boolean = false,
     val error: String? = null

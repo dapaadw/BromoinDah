@@ -9,4 +9,5 @@ interface WisataRepository {
     suspend fun searchWisata(query: String): List<Wisata>
     suspend fun upsertWisata(wisata: Wisata): Result<Unit>
     suspend fun deleteWisata(id: String): Result<Unit>
+    suspend fun uploadWisataImage(byteArray: ByteArray, fileName: String): Result<String>
 }

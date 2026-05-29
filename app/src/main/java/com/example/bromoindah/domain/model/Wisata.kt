@@ -14,5 +14,7 @@ data class Wisata(
     val fasilitas: String? = null,
     val aturan_kunjungan: String? = null,
     val foto_wisata_url: String? = null,
-    val created_at: Instant? = null
+    val created_at: Instant? = null,
+    val average_rating: Double = 0.0,
+    val total_reviews: Int = 0
 )
